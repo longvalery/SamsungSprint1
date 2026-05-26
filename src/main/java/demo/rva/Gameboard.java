@@ -12,6 +12,7 @@ public class Gameboard {
     private int currentColumn;
     private int currentRow;
     private int score;
+    private boolean running;
     // answer
     private String answer_text;
     private int answer_result;
@@ -27,11 +28,10 @@ public class Gameboard {
         this.score = 0;
         this.board = new CellType[row][column];
         this.initialGame();
-//        AnsiConsole.systemInstall();
-
         this.answer = true;
         this.answer_result = 0;
         this.answer_text = "";
+        this.running = true;
     }
 
     public boolean start() {
@@ -113,7 +113,7 @@ public class Gameboard {
         int row;
         int max;
         int min;
-        while (true) {
+        while (this.running) {
             this.show();
             System.out.println(String.format("Ваши текущие положение: строка %d, колонка %d",
                     this.currentRow, this.currentColumn));
@@ -123,6 +123,7 @@ public class Gameboard {
             max = this.currentRow + 1;
             if (max >= this.row) {max = this.row - 1;}
             row = inputValue("Строку", min, max);
+            if (! this.running) { this.lose(); }
             if (row == this.currentRow) { // Нельзя ходить по диагонали
                 min = this.currentColumn - 1;
                 if (min < 0) {
@@ -133,12 +134,11 @@ public class Gameboard {
                     max = this.column - 1;
                 }
                 column = inputValue("Колонку", min, max);
+                if (! this.running) { this.lose(); }
             }
             else { column = this.currentColumn; }
             this.makeStep(row, column);
         }
-
-
     }
 
     public void help() {
@@ -200,6 +200,7 @@ public class Gameboard {
             System.out.print(String.format("Введите %s от %d до %d: ", text, min, max));
             if (this.in.hasNextInt()) {
                 value = this.in.nextInt();
+                if (value == -1) {this.running = false; break; }
                 if ((value >= min) && (value <= max)) {
                     break;
                 } else {
